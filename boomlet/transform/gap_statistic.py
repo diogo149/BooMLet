@@ -4,6 +4,7 @@ TODO: if x is too large, take a sample and compute gap statistic on that
 
 import numpy as np
 
+from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.cluster import MiniBatchKMeans
 from sklearn.decomposition import RandomizedPCA, PCA
 
@@ -66,3 +67,21 @@ def generate_random_dataset(data):
     maxs = np.max(data, axis=0)
     new_data = np.subtract(np.multiply(random_data, maxs - mins), mins)
     return new_data
+
+class FitClusterer(BaseEstimator, TransformerMixin):
+
+    """ clustering algorithm that uses gap statistic to automatically determine how many clusters to use
+    """
+
+    def __init__(self, clusterer=MiniBatchKMeans, min_clusters=1):
+        self.clusterer = clusterer
+        self.min_clusters = min_clusters
+
+    def fit(self, X, y=None):
+        num_clusters = max(gap_statistic(X), self.min_clusters)
+        self.clusterer_ = self.clusterer(num_clusters)
+        self.clusterer_.fit(X, y)
+        return self
+
+    def __getattr__(self, name):
+        return getattr(self.clusterer_, name)
