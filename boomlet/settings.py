@@ -1,0 +1,8 @@
+class Setting(object):
+    pass
+
+PARALLEL = Setting()
+PARALLEL.JOBS = -1
+PARALLEL.JOBLIB_VERBOSE = 0
+PARALLEL.JOBLIB_PRE_DISPATCH = 'n_jobs'
+PARALLEL.PMAP = False
