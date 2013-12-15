@@ -1,7 +1,9 @@
 import random
+import numpy as np
 
 from boomlet.utils.heap import ConstSizeHeap
 from boomlet.utils.collection import grouper
+from boomlet.utils.estimators import quick_score
 from boomlet.parallel import pmap
 
 
@@ -85,3 +87,38 @@ def bitmask_genetic_algorithm(bits, score_func, history=None, gene_pool=None, ep
         if verbose:
             print "Completed epoch: {}\t Best score: {}".format(i, max([x[0] for x in gene_pool.to_list()]))
     return gene_pool
+
+
+def feature_bitmask(X, bitmask):
+    """ keeps only columns of a 2D numpy array corresponding to the input bitmask
+    """
+    return X[:, np.where(bitmask)[0]]
+
+
+def bitmask_score_func(clf,
+                       X,
+                       y,
+                       score_func,
+                       X_valid=None,
+                       y_valid=None,
+                       n_iter=3,
+                       test_size=0.1,
+                       random_state=None):
+    """ returns a function that takes in a bitmask and returns it's score
+    """
+    def wrapped(bitmask):
+        new_X = feature_bitmask(X, bitmask)
+        if X_valid is not None:
+            new_X_valid = feature_bitmask(X_valid, bitmask)
+        else:
+            new_X_valid = None
+        return quick_score(clf=clf,
+                           X=X,
+                           y=y,
+                           score_func=score_func,
+                           X_valid=new_X_valid,
+                           y_valid=y_valid,
+                           n_iter=n_iter,
+                           test_size=test_size,
+                           random_state=random_state)
+    return wrapped
