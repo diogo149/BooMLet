@@ -10,3 +10,4 @@ Requirments
 + scikit-learn
 + joblib
 + dill
++ matplotlib
