@@ -1,5 +1,6 @@
 import math
 from copy import deepcopy
+import numpy as np
 from sklearn.cross_validation import ShuffleSplit
 
 def flexible_int(size, in_val=None):
@@ -63,6 +64,23 @@ def quick_score(clf,
                 random_state=None):
     """scores on a validation set, if available, else with cross validation"""
     if X_valid is not None:
-        return score_func(y_valid, fit_predict(clf, X, y, X_valid)
+        return score_func(y_valid, fit_predict(clf, X, y, X_valid))
     else:
         return quick_cv(clf, X, y, score_func, n_iter, test_size, random_state)
+
+
+def gaussian_kernel_median_trick(X, sample_size='sqrt'):
+    """
+    From: http://www.machinedlearnings.com/2013/08/cosplay.html
+
+    estimate a kernel bandwidth using the "median trick"
+    this is a standard Gaussian kernel technique
+    """
+    sample_size = flexible_int(X.shape[0], sample_size)
+    perm = np.random.permutation(np.arange(X.shape[0]))
+    sample = X[perm[:sample_size]]
+    norms = np.sum(sample ** 2, axis=1).reshape(-1, 1)
+    tmp = np.dot(norms, np.ones((1, sample_size)))
+    dist = tmp + tmp.T - 2 * np.dot(sample, sample.T)
+    scale = 1 / np.sqrt(np.median(dist))
+    return scale
