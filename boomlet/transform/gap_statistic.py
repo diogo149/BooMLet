@@ -68,6 +68,7 @@ def generate_random_dataset(data):
     new_data = np.subtract(np.multiply(random_data, maxs - mins), mins)
     return new_data
 
+
 class FitClusterer(BaseEstimator, TransformerMixin):
 
     """ clustering algorithm that uses gap statistic to automatically determine how many clusters to use
