@@ -65,9 +65,9 @@ def pmap(func, generator, *args, **kwargs):
         return map(new_func, generator)
     else:
         try:
-            SETTINGS.PARALLEL.PMAP = False
+            PARALLEL.PMAP = False
             return joblib_parmap(new_func, generator)
         except PicklingError:
             return no_pickle_parmap(new_func, generator)
         finally:
-            SETTINGS.PARALLEL.PMAP = True
+            PARALLEL.PMAP = True

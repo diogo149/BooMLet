@@ -2,6 +2,8 @@ import math
 from copy import deepcopy
 import numpy as np
 from sklearn.cross_validation import ShuffleSplit
+from sklearn.preprocessing import LabelBinarizer
+
 
 def flexible_int(size, in_val=None):
     """ allows for flexible input as a size
@@ -84,3 +86,14 @@ def gaussian_kernel_median_trick(X, sample_size='sqrt'):
     dist = tmp + tmp.T - 2 * np.dot(sample, sample.T)
     scale = 1 / np.sqrt(np.median(dist))
     return scale
+
+
+def binarizer_from_classifier(clf):
+    """
+    returns a LabelBinarizer with the position of each class
+    corresponding to that of an input classifier
+    """
+    lb = LabelBinarizer()
+    lb.multilabel_ = False
+    lb.classes_ = clf.classes_
+    return lb

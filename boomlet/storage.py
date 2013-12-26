@@ -2,10 +2,12 @@ try:
     import cPickle as pickle
 except ImportError:
     import pickle
-import dill
 import joblib
 import zlib
 import os
+import glob
+
+import dill
 
 
 def mkdir(filename):
@@ -81,3 +83,17 @@ def dill_loads(s):
 
 def dill_dumps(obj):
     return dill.dumps(obj)
+
+
+def glob_one(*args):
+    if len(args) == 1:
+        dirname = "."
+        hint, = args
+    elif len(args) == 2:
+        dirname, hint = args
+    else:
+        raise Exception("improper argument count: {}".format(args))
+
+    globbed = glob.glob1(dirname, "*" + hint + "*")
+    assert len(globbed) == 1, (dirname, hint, globbed)
+    return os.path.join(dirname, globbed[0])

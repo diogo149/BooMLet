@@ -33,3 +33,27 @@ class NearZeroVarianceFilter(BaseEstimator, TransformerMixin):
 
     def transform(self, X):
         return X[:, self.keep_cols_]
+
+
+class InfinityReplacer(BaseEstimator, TransformerMixin):
+
+    """
+    Replaces values of infinity with a value, and negative of that value
+    for negative infinity.
+
+    (default: 2 ** 30 - 1 for positive infinity)
+
+    Stateless.
+    """
+
+    def __init__(self, replace_val=int((2 << 30) - 1)):
+        self.replace_val = replace_val
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        X_tmp = X.copy()
+        X_tmp[X == float("inf")] = self.replace_val
+        X_tmp[X == float("-inf")] = -self.replace_val
+        return X
