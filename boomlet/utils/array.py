@@ -11,7 +11,7 @@ def _to_2d(m):
     elif len(m.shape) == 1:
         return m.reshape(-1, 1)
     else:
-        raise Exception("Improper shape: {}".fotmat(m.shape))
+        raise Exception("Improper shape: {}".format(m.shape))
 
 
 def to_2d(*Xs):
