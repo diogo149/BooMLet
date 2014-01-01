@@ -2,22 +2,27 @@ import numpy as np
 from sklearn.base import BaseEstimator, TransformerMixin
 
 
-class InfinityRemover(BaseEstimator, TransformerMixin):
+class InvalidRemover(BaseEstimator, TransformerMixin):
 
-    """ Removes columns with infinite values.
+    """
+    Removes columns with invalid (infinite or nan) values, and only
+    transforming will zero out invalid values.
 
-        Looks for infinite values twice because the columns with infinite values in the training set may be different than in the test set. (fills these values with 0)
+    Looks for invalid values twice because the columns with invalid
+    values in the training set may be different than in the test set.
     """
 
     def fit(self, X, y=None):
-        self.no_inf_ = np.isinf(X).sum(axis=0) == 0
+        self.valid_ = (np.isinf(X) + np.isnan(X)).sum(axis=0) == 0
+        return self
 
     def transform(self, X):
-        X_no_inf = X[:, self.no_inf_]
+        X_valid = X[:, self.valid_]
         # this assumes that the previous statement makes a copy
         # and we aren't mutating the original X
-        X_no_inf[np.isinf(X_no_inf)] = 0.0
-        return X_no_inf
+        X_valid[np.isinf(X_valid)] = 0.0
+        X_valid[np.isnan(X_valid)] = 0.0
+        return X_valid
 
 
 class NearZeroVarianceFilter(BaseEstimator, TransformerMixin):
@@ -30,6 +35,7 @@ class NearZeroVarianceFilter(BaseEstimator, TransformerMixin):
 
     def fit(self, X, y=None):
         self.keep_cols_ = X.std(axis=0) > self.threshold
+        return self
 
     def transform(self, X):
         return X[:, self.keep_cols_]
@@ -56,4 +62,4 @@ class InfinityReplacer(BaseEstimator, TransformerMixin):
         X_tmp = X.copy()
         X_tmp[X == float("inf")] = self.replace_val
         X_tmp[X == float("-inf")] = -self.replace_val
-        return X
+        return X_tmp
