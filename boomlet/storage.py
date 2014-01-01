@@ -42,6 +42,10 @@ def decompress(s):
 
 
 def pickle_load(filename):
+    """
+    if this fails with a core dump, one may still be able to load a
+    pickle by importing pickle instead of cPickle
+    """
     with open(filename) as infile:
         return pickle.load(infile)
 
