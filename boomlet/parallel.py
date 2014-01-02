@@ -38,7 +38,7 @@ def no_pickle_parmap(func, generator):
                 q_out.put((i, func(x)))
         return fun
 
-    n_jobs = multiprocessing.cpu_count()
+    n_jobs = multiprocessing.cpu_count() if PARALLEL.JOBS == -1 else PARALLEL.JOBS
 
     q_in = multiprocessing.Queue(1)
     q_out = multiprocessing.Queue()
@@ -64,10 +64,15 @@ def pmap(func, generator, *args, **kwargs):
     if not PARALLEL.PMAP:
         return map(new_func, generator)
     else:
+        # don't allow parallel maps under this to parallelize
+        # because computation is already in parallel
+        PARALLEL.PMAP = False
         try:
-            PARALLEL.PMAP = False
             return joblib_parmap(new_func, generator)
-        except PicklingError:
+        except PicklingError as e:
+            # allow parallel maps under this to try to perform
+            # in parallel
+            print("PicklingError: {}".format(e))
             return no_pickle_parmap(new_func, generator)
         finally:
             PARALLEL.PMAP = True
