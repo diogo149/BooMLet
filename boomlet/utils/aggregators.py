@@ -12,6 +12,7 @@ AGGREGATORS = {
     "median": np.median,
     "max": np.max,
     "min": np.min,
+    "sum": np.sum,
 }
 
 
