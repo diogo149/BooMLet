@@ -71,12 +71,15 @@ def generate_random_dataset(data):
 
 class FitClusterer(BaseEstimator, TransformerMixin):
 
-    """ clustering algorithm that uses gap statistic to automatically determine how many clusters to use
+    """
+    clustering algorithm that uses gap statistic to automatically
+    determine how many clusters to use
     """
 
     def __init__(self, clusterer=MiniBatchKMeans, min_clusters=1):
         self.clusterer = clusterer
         self.min_clusters = min_clusters
+        self.clusterer_ = None
 
     def fit(self, X, y=None):
         num_clusters = max(gap_statistic(X), self.min_clusters)
@@ -84,5 +87,12 @@ class FitClusterer(BaseEstimator, TransformerMixin):
         self.clusterer_.fit(X, y)
         return self
 
+    def fit_predict(self, X, y=None):
+        self.fit(X, y)
+        return self.predict(X)
+
     def __getattr__(self, name):
-        return getattr(self.clusterer_, name)
+        if self.clusterer is not None:
+            return getattr(self.clusterer_, name)
+        else:
+            raise TypeError("Invalid attribute: {}".format(name))
