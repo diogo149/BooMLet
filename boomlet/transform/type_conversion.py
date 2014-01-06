@@ -62,7 +62,9 @@ class Clusterizer(BaseEstimator, TransformerMixin):
 
     def fit_transform(self, X, y=None):
         assert len(X.shape) == 1
-        return self.clusterer.fit_predict(X.reshape(-1, 1), y)
+        # Cannot call fit_predict with y because the fit_predict
+        # method of KMeans and MiniBatchKMeans do not take y
+        return self.clusterer.fit_predict(X.reshape(-1, 1))
 
 
 class TransformDecoder(BaseEstimator, TransformerMixin):
